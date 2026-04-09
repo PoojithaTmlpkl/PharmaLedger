@@ -24,12 +24,18 @@ Frontend: HTML, CSS, JavaScript
 Storage: IPFS (Decentralized Storage)
 Tools: Web3.js, Ganache, MetaMask
 
+<img width="1837" height="908" alt="active drugs-Dist" src="https://github.com/user-attachments/assets/b9a5cfc9-0957-4ae4-ba67-70ef384032a8" />
+
+
 🔄 Workflow
 Manufacturer registers drug batch and generates QR code
 Blockchain stores batch details as a secure record
 Distributor verifies and updates ownership
 Hospital performs final verification and confirms delivery
 Every step is recorded as an immutable blockchain transaction
+
+<img width="1291" height="844" alt="Ledger entries" src="https://github.com/user-attachments/assets/faa76cef-8227-40d8-8487-ba033b6ea4c9" />
+<img width="1778" height="831" alt="chain" src="https://github.com/user-attachments/assets/d332cf95-292c-46f0-b77a-b0b96e342474" />
 
 📊 Key Outcomes
 Prevents counterfeit drugs using QR verification
