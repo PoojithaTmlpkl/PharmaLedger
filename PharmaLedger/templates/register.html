@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Register · PharmaLedger</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="auth-shell">
+    <div class="grid-glow" aria-hidden="true"></div>
+    <section class="auth-card">
+        <div class="auth-copy">
+            <p class="eyebrow">Onboard stakeholder</p>
+            <h1>Create secure credentials</h1>
+            <p>Roles define the capabilities exposed inside PharmaLedger. Ensure the correct designation for traceability obligations.</p>
+        </div>
+        <form class="auth-form" method="post">
+            <label>Name
+                <input name="name" placeholder="Jane Manufacturer" required>
+            </label>
+            <label>Email
+                <input name="email" type="email" placeholder="user@domain.com" required>
+            </label>
+            <label>Password
+                <input type="password" name="password" placeholder="Choose a strong secret" required>
+            </label>
+            <label>Role
+                <select name="role" required>
+                    <option value="MANUFACTURER">Manufacturer</option>
+                    <option value="DISTRIBUTOR">Distributor</option>
+                    <option value="HOSPITAL">Hospital</option>
+                    <option value="ADMIN">Admin</option>
+                </select>
+            </label>
+            <button class="btn" type="submit">Create account</button>
+            <p class="muted">Already registered? <a href="/">Sign in</a></p>
+        </form>
+    </section>
+</body>
+</html>

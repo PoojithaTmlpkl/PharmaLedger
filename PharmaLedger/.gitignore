@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+pharmaledger.db
+mock_chain.json
+.env
+chain/.env

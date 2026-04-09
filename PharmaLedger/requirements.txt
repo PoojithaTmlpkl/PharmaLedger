@@ -1,0 +1,6 @@
+Flask==2.3.3
+Flask-Login==0.6.3
+web3==6.14.0
+qrcode==7.4.2
+Pillow==10.3.0
+python-dotenv==1.0.1

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+	<div class="panel-header">
+		<div>
+			<p class="eyebrow">Forensics</p>
+			<h2>Audit trail</h2>
+		</div>
+	</div>
+	<div class="audit-summary">
+		<div>
+			<p class="meta">Drug UID</p>
+			<h3>{{ drug.drug_uid }}</h3>
+			<p class="meta">Drug · {{ drug.drug_name }} · Batch {{ drug.batch_no }}</p>
+		</div>
+		<span class="status-pill {{ 'status-valid' if check else 'status-invalid' }}">
+			{{ 'Chain valid' if check else 'Chain tampered' }}
+		</span>
+	</div>
+</section>
+
+<section class="panel table-panel">
+	<div class="panel-header">
+		<div>
+			<p class="eyebrow">Hash continuity</p>
+			<h3>Ledger entries</h3>
+		</div>
+	</div>
+	<div class="table-scroll">
+		<table>
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Event</th>
+					<th>Location</th>
+					<th>Prev hash</th>
+					<th>Curr hash</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for e in events %}
+				<tr>
+					<td>{{ e.id }}</td>
+					<td>{{ e.event }}</td>
+					<td>{{ e.location }}</td>
+					<td><code>{{ e.prev_hash[:18] }}...</code></td>
+					<td><code>{{ e.curr_hash[:18] }}...</code></td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</section>
+{% endblock %}

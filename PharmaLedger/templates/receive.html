@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel form-panel">
+  <div>
+    <p class="eyebrow">Distributor intake</p>
+    <h2>Receive drug batch</h2>
+    <p class="meta">Drug UID · {{ drug.drug_uid }}</p>
+    <p class="meta">Current status · {{ drug.status }}</p>
+    {% if pending_role %}
+    <p class="meta">You are confirming as · {{ pending_role.title() }}</p>
+    {% else %}
+    <p class="meta">No pending inbound hop for this lot.</p>
+    {% endif %}
+    <p class="muted">Scan the QR and submit this form to seal the hop so regulators can see the journey end-to-end.</p>
+    {% if error %}
+    <p class="meta" style="color:#f31260">{{ error }}</p>
+    {% endif %}
+  </div>
+  <form class="grid-form" method="post">
+    <label>
+      <span>Receiving location</span>
+      <input name="location" placeholder="Cold storage hub" required>
+    </label>
+    <button class="btn" type="submit">Confirm custody</button>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel form-panel">
+  <div>
+    <p class="eyebrow">Manufacturer workflow</p>
+    <h2>Serialize a new batch</h2>
+    <p class="muted">Each submission triggers QR minting, ledger anchoring, and IPFS-ready payloads for certificates.</p>
+  </div>
+
+  <form class="grid-form" method="post">
+    <label>
+      <span>Drug name</span>
+      <input name="name" placeholder="e.g. PaxRelief 500mg" required>
+    </label>
+    <label>
+      <span>Batch number</span>
+      <input name="batch" placeholder="BCH-2025-AX" required>
+    </label>
+    <label>
+      <span>Total quantity</span>
+      <input name="qty" type="number" min="1" placeholder="1000" required>
+    </label>
+    <label>
+      <span>Current location</span>
+      <input name="location" placeholder="Factory · Hyderabad" required>
+    </label>
+    <button class="btn" type="submit">Generate QR + Anchor ledger</button>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel scanner-panel">
+	<div>
+		<p class="eyebrow">Field inspection</p>
+		<h2>Scan a PharmaLedger QR</h2>
+		<p class="muted">Use a rear camera or upload a QR image from your laptop to launch the verification workflow instantly.</p>
+		<p class="muted"><strong>MetaMask not needed:</strong> the backend signs Ethereum updates; you only need this browser screen.</p>
+		<ul class="hint-list">
+			<li>Hold the code 15 cm away for live scan.</li>
+			<li>No camera? Switch to the "Upload" tab in the widget.</li>
+			<li>Every successful scan automatically opens the provenance timeline.</li>
+		</ul>
+		<form class="inline-form" action="/verify" method="get">
+			<input name="drug_uid" placeholder="Or manually type the UID" required>
+			<button class="btn" type="submit">Open verification</button>
+		</form>
+	</div>
+	<div id="reader" aria-live="polite"></div>
+</section>
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+const scanner = new Html5QrcodeScanner("reader", { fps: 12, qrbox: 260, rememberLastUsedCamera: true }, false);
+scanner.render((decodedText) => {
+	window.location = `/verify?drug_uid=${decodedText}`;
+}, (errorMessage) => {
+	console.debug('QR scan error', errorMessage);
+});
+</script>
+{% endblock %}

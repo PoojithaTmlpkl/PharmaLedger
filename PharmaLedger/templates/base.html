@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>PharmaLedger</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="app-shell">
+<div class="grid-glow" aria-hidden="true"></div>
+<header class="top-nav">
+	<div class="brand">
+		<div class="logo-dot"></div>
+		<div>
+			<p class="eyebrow">Blockchain Traceability</p>
+			<h1>PharmaLedger</h1>
+		</div>
+	</div>
+	<div class="nav-links">
+		<a href="/dashboard">Overview</a>
+		<a href="/scan">Scan QR</a>
+		<a href="/verify">Verify Batch</a>
+		{% if current_user.is_authenticated and current_user.role in ["MANUFACTURER","ADMIN"] %}
+		<a href="/create">New Batch</a>
+		{% endif %}
+		{% if current_user.is_authenticated and current_user.role == "ADMIN" %}
+		<a href="/admin">Admin</a>
+		{% endif %}
+	</div>
+	<div class="nav-actions">
+		{% if current_user.is_authenticated %}
+		<div class="user-chip">
+			<span class="user-name">{{ current_user.name }}</span>
+			<span class="user-role">{{ current_user.role }}</span>
+		</div>
+		<a class="ghost" href="/logout">Logout</a>
+		{% else %}
+		<a class="ghost" href="/">Login</a>
+		{% endif %}
+	</div>
+</header>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="toast-stack" role="status" aria-live="polite">
+	{% for category,message in messages %}
+	<div class="toast toast-{{ category }}">
+		<span>{{ message }}</span>
+		<button type="button" class="toast-close" aria-label="Dismiss" onclick="this.closest('.toast').remove()">×</button>
+	</div>
+	{% endfor %}
+</div>
+<script>
+setTimeout(() => {
+	const stack = document.querySelectorAll('.toast');
+	stack.forEach((toast,idx) => {
+		setTimeout(() => toast.classList.add('toast-show'), idx * 120);
+		setTimeout(() => toast.classList.add('toast-hide'), 3500 + idx * 200);
+		setTimeout(() => toast.remove(), 4200 + idx * 200);
+	});
+}, 10);
+</script>
+{% endif %}
+{% endwith %}
+
+<main class="page">
+	{% block content %}{% endblock %}
+</main>
+
+<footer class="page-footer">
+	<p>© PharmaLedger · Real-time compliance and trust infrastructure.</p>
+</footer>
+</body>
+</html>

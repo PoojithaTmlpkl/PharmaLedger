@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero admin-hero">
+  <div>
+    <p class="eyebrow">Regulatory cockpit</p>
+    <h2>Overview of the decentralized supply chain</h2>
+    <p class="muted">Monitor onboarding activity, ledger events, and investigate anomalies across stakeholders.</p>
+    <div class="hero-actions">
+      <a class="btn" href="/create">+ Register new batch</a>
+      <a class="ghost" href="/scan">Scan QR</a>
+    </div>
+  </div>
+</section>
+
+<section class="metrics-grid">
+  <div class="metric-card">
+    <p>Registered users</p>
+    <h2>{{ users|length }}</h2>
+    <span>Manufacturers · Distributors · Hospitals</span>
+  </div>
+  <div class="metric-card">
+    <p>Total drugs</p>
+    <h2>{{ drugs|length }}</h2>
+    <span>Serialized batches under surveillance</span>
+  </div>
+  <div class="metric-card">
+    <p>Ledger entries</p>
+    <h2>{{ ledger|length }}</h2>
+    <span>Immutable events anchored</span>
+  </div>
+</section>
+
+<section class="panel table-panel">
+  <div class="panel-header">
+    <div>
+      <p class="eyebrow">Directory</p>
+      <h3>Registered users</h3>
+    </div>
+  </div>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th></tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ u.id }}</td>
+          <td>{{ u.name }}</td>
+          <td>{{ u.email }}</td>
+          <td>{{ u.role }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel table-panel">
+  <div class="panel-header">
+    <div>
+      <p class="eyebrow">Inventory</p>
+      <h3>Drugs on-chain</h3>
+    </div>
+  </div>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr><th>UID</th><th>Name</th><th>Batch</th><th>Status</th><th>Owner</th></tr>
+      </thead>
+      <tbody>
+        {% for d in drugs %}
+        <tr>
+          <td>{{ d.drug_uid }}</td>
+          <td>{{ d.drug_name }}</td>
+          <td>{{ d.batch_no }}</td>
+          <td>{{ d.status }}</td>
+          <td>{{ d.owner_role }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel table-panel">
+  <div class="panel-header">
+    <div>
+      <p class="eyebrow">Blockchain log</p>
+      <h3>Ledger activity</h3>
+    </div>
+  </div>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th><th>Drug UID</th><th>Event</th>
+          <th>Location</th><th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for l in ledger %}
+        <tr>
+          <td>{{ l.id }}</td>
+          <td>{{ l.drug_uid }}</td>
+          <td>{{ l.event }}</td>
+          <td>{{ l.location }}</td>
+          <td>{{ l.timestamp }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel table-panel">
+  <div class="panel-header">
+    <div>
+      <p class="eyebrow">Audit trail</p>
+      <h3>Hash continuity</h3>
+      <p class="muted">Prev and current hash pairs provide tamper detection at a glance.</p>
+    </div>
+    {% if ledger %}
+    <a class="ghost" href="/audit/{{ ledger[0].drug_uid }}">Open latest audit</a>
+    {% endif %}
+  </div>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Drug UID</th>
+          <th>Prev hash</th>
+          <th>Curr hash</th>
+          <th>Event</th>
+          <th>Location</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for l in ledger %}
+        <tr>
+          <td>{{ l.id }}</td>
+          <td>{{ l.drug_uid }}</td>
+          <td><code>{{ l.prev_hash[:18] }}...</code></td>
+          <td><code>{{ l.curr_hash[:18] }}...</code></td>
+          <td>{{ l.event }}</td>
+          <td>{{ l.location }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

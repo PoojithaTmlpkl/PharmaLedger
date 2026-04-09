@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Login · PharmaLedger</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="auth-shell">
+    <div class="grid-glow" aria-hidden="true"></div>
+    <section class="auth-card">
+        <div class="auth-copy">
+            <p class="eyebrow">PharmaLedger</p>
+            <h1>Decentralized drug traceability</h1>
+            <p>Authenticate to orchestrate manufacturer, distributor, and hospital workflows with tamper-proof logging.</p>
+            <ul class="hint-list">
+                <li>Role-aware dashboards</li>
+                <li>QR and IoT telemetry ready</li>
+                <li>Immutable audit history</li>
+            </ul>
+        </div>
+        <form class="auth-form" method="post">
+            <div>
+                <label>Email</label>
+                <input type="email" name="email" placeholder="team@pharmaledger.io" required>
+            </div>
+            <div>
+                <label>Password</label>
+                <input type="password" name="password" placeholder="••••••••" required>
+            </div>
+            <button class="btn" type="submit">Sign in</button>
+            <p class="muted">New participant? <a href="/register">Create an account</a></p>
+        </form>
+    </section>
+</body>
+</html>

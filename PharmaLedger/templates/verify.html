@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel verify-panel">
+	<div>
+		<p class="eyebrow">QR authenticity</p>
+		<h2>Batch verification</h2>
+		<p class="muted">Scan any PharmaLedger QR or input the UID using the form below to retrieve tamper-proof provenance.</p>
+	</div>
+
+	<form class="inline-form" method="get">
+		<input name="drug_uid" placeholder="Enter UID" value="{{ request.args.get('drug_uid','') }}" required>
+		<button class="btn" type="submit">Run check</button>
+	</form>
+
+	{% if drug %}
+	<div class="verify-card {{ 'valid' if valid else 'invalid' }}">
+		<div>
+			<p class="status-label">{{ 'Authentic medicine' if valid else 'Counterfeit risk detected' }}</p>
+			<h3>{{ drug.drug_name }}</h3>
+			<p class="meta">Batch · {{ drug.batch_no }}</p>
+			<p class="meta">Owner · {{ drug.owner_role }}</p>
+			<p class="meta">Status · {{ drug.status }}</p>
+			<p class="meta">UID · {{ drug.drug_uid }}</p>
+		</div>
+		<img src="/static/qr/{{ drug.drug_uid }}.png" alt="QR for {{ drug.drug_name }}" onerror="this.remove();">
+	</div>
+	{% else %}
+	<div class="empty-state">
+		<p>Provide a valid `drug_uid` to inspect the blockchain record.</p>
+	</div>
+	{% endif %}
+</section>
+
+{% if drug %}
+<section class="panel">
+	<div class="panel-header">
+		<div>
+			<p class="eyebrow">Ledger</p>
+			<h3>Chain-of-custody timeline</h3>
+		</div>
+	</div>
+	{% if timeline_message %}
+	<p class="status-hint">{{ timeline_message }}</p>
+	{% endif %}
+	{% if events %}
+	<ul class="timeline">
+		{% for e in events %}
+		<li>
+			<div class="dot"></div>
+			<div>
+				<p class="timestamp">{{ e.timestamp }}</p>
+				<p class="event">{{ e.event }} — {{ e.location }}</p>
+				<p class="hash">Prev {{ e.prev_hash[:12] }} · Curr {{ e.curr_hash[:12] }}</p>
+			</div>
+		</li>
+		{% endfor %}
+	</ul>
+	{% else %}
+	<div class="empty-state">
+		<p>No ledger events yet.</p>
+	</div>
+	{% endif %}
+</section>
+{% endif %}
+
+{% if drug %}
+<section class="panel">
+	<div class="panel-header">
+		<div>
+			<p class="eyebrow">On-chain proof</p>
+			<h3>Ethereum event log</h3>
+		</div>
+		<div class="pill-group">
+			{% if chain_mode == "real" %}
+			<span class="status-pill status-good">Live Ethereum</span>
+			{% elif chain_mode == "mock" %}
+			<span class="status-pill status-warning">Local ledger</span>
+			{% else %}
+			<span class="status-pill status-danger">Bridge disabled</span>
+			{% endif %}
+			{% if chain_enabled %}
+			<span class="status-pill">{{ onchain_events|length }} entries</span>
+			{% endif %}
+		</div>
+	</div>
+	{% if chain_error %}
+	<div class="empty-state">
+		<p>Unable to reach the smart contract: {{ chain_error }}</p>
+	</div>
+	{% elif onchain_events %}
+	<ul class="timeline">
+		{% for e in onchain_events %}
+		<li>
+			<div class="dot"></div>
+			<div>
+				<p class="timestamp">{{ e.timestamp }}</p>
+				<p class="event">{{ e.event }} — {{ e.location }}</p>
+				<p class="hash">Prev {{ e.prev_hash[:12] }} · Curr {{ e.curr_hash[:12] }}</p>
+			</div>
+		</li>
+		{% endfor %}
+	</ul>
+	{% elif not chain_enabled %}
+	<div class="empty-state">
+		<p>Blockchain bridge disabled – configure CHAIN_* variables or rely on the mock ledger.</p>
+	</div>
+	{% else %}
+	<div class="empty-state">
+		<p>No on-chain events recorded yet.</p>
+	</div>
+	{% endif %}
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+	<div>
+		<p class="eyebrow">Live Supply Chain</p>
+		<h2>Track every batch from factory to care point.</h2>
+		<p class="muted">QR-secured events, blockchain-backed signatures, anomaly alerts, and audit-ready charts keep regulators, distributors, and hospitals fully aligned.</p>
+		<div class="hero-actions">
+			{% if current_user.role == "MANUFACTURER" %}
+			<a class="btn" href="/create">+ Register Drug Lot</a>
+			{% endif %}
+			<a class="ghost" href="/verify">Go to Verify</a>
+			{% if current_user.role == "ADMIN" %}
+			<a class="ghost" href="/admin">Admin Console</a>
+			{% endif %}
+		</div>
+	</div>
+	<div class="hero-card">
+		<p>Network Health</p>
+		<div class="radial"></div>
+		<h3>{{ total_drugs }} Active Lots</h3>
+		<p class="muted">{{ total_units }} Serialized units secured</p>
+	</div>
+</section>
+
+<section class="panel chain-panel">
+	<div class="panel-header">
+		<div>
+			<p class="eyebrow">3-person tracking</p>
+			<h3>Manufacturer ➜ Distributor ➜ Hospital</h3>
+			<p class="muted">Every hop is backed by a ledger event and optional on-chain anchor so you can show regulators how the medicine moved, just like you asked.</p>
+		</div>
+	</div>
+	<div class="metrics-grid">
+		<div class="metric-card">
+			<p>1 · Manufacturer</p>
+			<h4>Serialize & dispatch</h4>
+			<span>QR is minted, MetaMask not required—the server signs blockchain writes.</span>
+		</div>
+		<div class="metric-card">
+			<p>2 · Distributor</p>
+			<h4>Scan on intake</h4>
+			<span>Use the transfer & receive forms to log truck departures and arrivals.</span>
+		</div>
+		<div class="metric-card">
+			<p>3 · Hospital</p>
+			<h4>Verify & deliver</h4>
+			<span>Final scan on `/receive` closes the hop and exposes the full QR timeline.</span>
+		</div>
+	</div>
+</section>
+
+<section class="metrics-grid">
+	<div class="metric-card">
+		<p>Tracked Lots</p>
+		<h2>{{ total_drugs }}</h2>
+		<span>Immutable audit entries ensured for each</span>
+	</div>
+	<div class="metric-card">
+		<p>Filtered View</p>
+		<h2>{{ drugs|length }}</h2>
+		<span>Matches current search & status filters</span>
+	</div>
+	<div class="metric-card">
+		<p>Network Units</p>
+		<h2>{{ total_units }}</h2>
+		<span>Quantity safeguarded via QR serialization</span>
+	</div>
+</section>
+
+<form class="filter-bar" method="get">
+	<label>
+		<span>Search lot / batch / UID</span>
+		<input name="q" value="{{ filters.search }}" placeholder="Search name, batch, or UID">
+	</label>
+	<label>
+		<span>Status</span>
+		<select name="status">
+			<option value="">All statuses</option>
+			{% for status in status_options %}
+			<option value="{{ status }}" {% if filters.status == status %}selected{% endif %}>{{ status.title() }}</option>
+			{% endfor %}
+		</select>
+	</label>
+	<div class="filter-actions">
+		<button class="btn" type="submit">Apply filters</button>
+		<a class="ghost" href="/dashboard">Reset</a>
+	</div>
+</form>
+
+<section class="panel quick-verify">
+	<div>
+		<p class="eyebrow">Instant validation</p>
+		<h3>Verify a UID from here</h3>
+		<p class="muted">Paste or scan a code and jump straight into the provenance timeline.</p>
+	</div>
+	<form class="inline-form" action="/verify" method="get">
+		<input name="drug_uid" placeholder="Enter or paste UID" required>
+		<button class="btn">Verify</button>
+	</form>
+</section>
+
+<section class="panel">
+	<div class="panel-header">
+		<div>
+			<p class="eyebrow">Inventory</p>
+			<h3>Active drug batches</h3>
+		</div>
+	</div>
+
+	{% if drugs %}
+	<div class="drug-grid">
+		{% for d in drugs %}
+		<article class="drug-card">
+			<div class="card-top">
+				<h4>{{ d.drug_name }}</h4>
+				<span class="status-pill status-{{ d.status|lower }}">{{ d.status }}</span>
+			</div>
+			<p class="meta">Batch · {{ d.batch_no }}</p>
+			<p class="meta">Owner · {{ d.owner_role }}</p>
+			<p class="meta">
+				{% if d.pending_role %}
+				Awaiting · {{ d.pending_role.title() }}
+				{% elif d.owner_role == "DISTRIBUTOR" and not d.distributor_verified %}
+				QC pending · Distributor step 3
+				{% elif d.owner_role == "DISTRIBUTOR" and d.distributor_verified %}
+				QC done · Ready for hospital
+				{% elif d.next_role %}
+				Next hop · {{ d.next_role.title() }}
+				{% else %}
+				Chain complete
+				{% endif %}
+			</p>
+			<p class="qty">Quantity secured: {{ d.quantity }}</p>
+			<div class="card-actions">
+				<a class="ghost" href="/verify?drug_uid={{ d.drug_uid }}">Verify</a>
+				<a class="ghost" href="/audit/{{ d.drug_uid }}">Audit Trail</a>
+				{% if d.owner_role == "DISTRIBUTOR" and not d.distributor_verified and current_user.role in ["DISTRIBUTOR","ADMIN"] %}
+				<a class="ghost" href="/inspect/{{ d.drug_uid }}">Verify lot</a>
+				{% endif %}
+				{% if d.next_role and (current_user.role == d.owner_role or current_user.role == "ADMIN") %}
+				<a class="btn" href="/transfer/{{ d.drug_uid }}">Transfer hop</a>
+				{% endif %}
+				{% if d.pending_role and (current_user.role == d.pending_role or current_user.role == "ADMIN") %}
+				<a class="btn" href="/receive/{{ d.drug_uid }}">{{ 'Receive hop' if d.pending_role != 'HOSPITAL' else 'Hospital receive' }}</a>
+				{% endif %}
+			</div>
+		</article>
+		{% endfor %}
+	</div>
+	{% else %}
+	<div class="empty-state">
+		<p>No drug lots found for the current filters.</p>
+		<a class="btn" href="/create">Register a batch</a>
+	</div>
+	{% endif %}
+</section>
+
+<section class="panel charts-panel">
+	<div class="panel-header">
+		<div>
+			<p class="eyebrow">Visual analytics</p>
+			<h3>Realtime PharmaLedger insights</h3>
+		</div>
+	</div>
+	<div class="chart-grid">
+		<article class="chart-card">
+			<h4>Status distribution</h4>
+			<canvas id="statusChart"></canvas>
+		</article>
+		<article class="chart-card">
+			<h4>Owner distribution</h4>
+			<canvas id="ownerChart"></canvas>
+		</article>
+		<article class="chart-card">
+			<h4>Top lots by quantity</h4>
+			<canvas id="qtyChart"></canvas>
+		</article>
+		<article class="chart-card">
+			<h4>Event types</h4>
+			<canvas id="eventChart"></canvas>
+		</article>
+		<article class="chart-card">
+			<h4>Events per day</h4>
+			<canvas id="eventDayChart"></canvas>
+		</article>
+		<article class="chart-card">
+			<h4>Roles onboarded</h4>
+			<canvas id="roleChart"></canvas>
+		</article>
+		<article class="chart-card">
+			<h4>Quantity by owner</h4>
+			<canvas id="qtyOwnerChart"></canvas>
+		</article>
+	</div>
+</section>
+
+<section class="panel events-panel">
+	<div class="panel-header">
+		<div>
+			<p class="eyebrow">Chain activity</p>
+			<h3>Recent ledger events</h3>
+		</div>
+	</div>
+	{% if recent_events %}
+	<ul class="event-feed">
+		{% for e in recent_events %}
+		<li>
+			<div>
+				<p class="meta">{{ e.timestamp }}</p>
+				<strong>{{ e.event }}</strong>
+				<p class="muted">{{ e.location }}</p>
+			</div>
+			<div>
+				<p class="meta">UID</p>
+				<code>{{ e.drug_uid }}</code>
+			</div>
+		</li>
+		{% endfor %}
+	</ul>
+	{% else %}
+	<div class="empty-state">
+		<p>No ledger events recorded yet.</p>
+	</div>
+	{% endif %}
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+<script>
+const chartPayload = {{ charts | tojson }};
+const palette = ['#5af0ff', '#5f4bff', '#17c964', '#f5a524', '#f31260', '#fec260', '#3f8efc'];
+
+const chartConfigs = {
+	statusChart: { type: 'doughnut', data: chartPayload.status },
+	ownerChart: { type: 'doughnut', data: chartPayload.owner },
+	qtyChart: { type: 'bar', data: chartPayload.qty },
+	eventChart: { type: 'bar', data: chartPayload.events },
+	eventDayChart: { type: 'line', data: chartPayload.eventsByDay },
+	roleChart: { type: 'polarArea', data: chartPayload.roles },
+	qtyOwnerChart: { type: 'bar', data: chartPayload.qtyOwner }
+};
+
+function buildDataset(labels = [], values = [], type = 'bar') {
+	return {
+		labels,
+		datasets: [{
+			label: 'count',
+			data: values,
+			backgroundColor: palette,
+			borderColor: palette,
+			borderWidth: 1.5,
+			fill: type === 'line'
+		}]
+	};
+}
+
+Object.entries(chartConfigs).forEach(([id, cfg]) => {
+	const el = document.getElementById(id);
+	if (!el) return;
+	const source = cfg.data;
+	if (!source || !source.labels || !source.labels.length) {
+		el.style.display = 'none';
+		el.parentElement.classList.add('chart-empty');
+		el.parentElement.insertAdjacentHTML('beforeend', '<p class="muted">No data yet</p>');
+		return;
+	}
+	new Chart(el.getContext('2d'), {
+		type: cfg.type,
+		data: buildDataset(source.labels, source.values, cfg.type),
+		options: {
+			plugins: {
+				legend: { display: cfg.type !== 'bar' || cfg.type === 'polarArea' }
+			},
+			scales: cfg.type === 'bar' || cfg.type === 'line' ? {
+				x: { ticks: { color: '#9fb0d1' } },
+				y: { ticks: { color: '#9fb0d1' }, beginAtZero: true }
+			} : {}
+		}
+	});
+});
+</script>
+{% endblock %}
